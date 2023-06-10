@@ -26,7 +26,7 @@ const limiter = rateLimit({
   
 // Define a route to handle the email sending
 
-app.post('/api/send-email', [
+app.post('/', [
     body('name').trim().notEmpty().withMessage('Name is required'),
     body('email').trim().isEmail().withMessage('Invalid email address'),
     body('message').trim().notEmpty().withMessage('Message is required'),
