@@ -8,10 +8,10 @@ const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 
-// ADD RATE LIMITING ALSO
 const app = express();
-app.use(express.json());
 app.use(cors()); // Enable CORS for cross-domain requests
+app.use(express.json());
+
 
 const limiter = rateLimit({
     windowMs: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
