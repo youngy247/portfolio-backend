@@ -24,6 +24,16 @@ const limiter = rateLimit({
   
   app.use(limiter);
   
+ // Create a Nodemailer transporter
+ const transporter = nodemailer.createTransport({
+    // Configure your email provider details here
+    service: process.env.EMAIL_SERVICE,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD,
+    },
+  });
+
 // Define a route to handle the email sending
 
 app.post('/', [
@@ -38,16 +48,6 @@ app.post('/', [
   
     const { name, email, message } = req.body;
   
-
-  // Create a Nodemailer transporter
-  const transporter = nodemailer.createTransport({
-    // Configure your email provider details here
-    service: process.env.EMAIL_SERVICE,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD,
-    },
-  });
 
   // Compose the email message
   const mailOptions = {
