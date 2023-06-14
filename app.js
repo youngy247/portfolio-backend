@@ -40,7 +40,7 @@ app.post('/', [
     body('name').trim().notEmpty().withMessage('Name is required'),
     body('email').trim().isEmail().withMessage('Invalid email address'),
     body('message').trim().notEmpty().withMessage('Message is required'),
-  ], (req, res) => {
+  ], async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -48,26 +48,25 @@ app.post('/', [
   
     const { name, email, message } = req.body;
   
-
-  // Compose the email message
-  const mailOptions = {
-    from: email, // Sender's email address (user input)
-    to: process.env.EMAIL_RECIPIENT, // Your email address
-    subject: 'New Portfolio Form Submission',
-    text: `Name: ${name}\nEmail: ${email}\n\nMessage: ${message}`,
-  };
-
-  // Send the email
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
+    // Compose the email message
+    const mailOptions = {
+      from: email,
+      to: process.env.EMAIL_RECIPIENT,
+      subject: 'New Portfolio Form Submission',
+      text: `Name: ${name}\nEmail: ${email}\n\nMessage: ${message}`,
+    };
+  
+    try {
+      // Send the email asynchronously
+      await transporter.sendMail(mailOptions);
+      console.log('Email sent');
+      res.sendStatus(200);
+    } catch (error) {
       console.log(error);
-      res.status(500).send('Failed to send email.'); // Handle the error
-    } else {
-      console.log('Email sent:', info.response);
-      res.sendStatus(200); // Send a success response
+      res.status(500).send('Failed to send email.');
     }
   });
-});
+  
 
 // Start the server
 const port = process.env.PORT || 3000;
