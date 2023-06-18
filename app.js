@@ -55,12 +55,12 @@ app.post('/', [
       subject: 'New Portfolio Form Submission',
       text: `Name: ${name}\nEmail: ${email}\n\nMessage: ${message}`,
     };
-  
+    res.sendStatus(200);
     try {
       // Send the email asynchronously
       await transporter.sendMail(mailOptions);
       console.log('Email sent');
-      res.sendStatus(200);
+      
     } catch (error) {
       console.log(error);
       res.status(500).send('Failed to send email.');
