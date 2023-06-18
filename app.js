@@ -53,11 +53,11 @@ app.post(
     const emails = req.body;
 
     try {
-      // Enqueue the email sending task for each email
-      const tasks = emails.map((email) => {
-        const { name, email, message } = email;
-        return emailQueue.add('sendEmail', { name, email, message });
-      });
+        // Enqueue the email sending task for each email
+        const tasks = emails.map((emailData) => {
+          const { name, email: emailAddress, message } = emailData;
+          return emailQueue.add('sendEmail', { name, email: emailAddress, message });
+        });
 
       await Promise.all(tasks);
 
