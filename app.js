@@ -38,9 +38,11 @@ const emailQueue = new Queue('email');
 app.post(
   '/',
   [
-    body('name').trim().notEmpty().withMessage('Name is required'),
-    body('email').trim().isEmail().withMessage('Invalid email address'),
-    body('message').trim().notEmpty().withMessage('Message is required'),
+    body().isArray().withMessage('Invalid email data'),
+    body('*').isObject().notEmpty().withMessage('Email data is required'),
+    body('*.name').trim().notEmpty().withMessage('Name is required'),
+    body('*.email').trim().isEmail().withMessage('Invalid email address'),
+    body('*.message').trim().notEmpty().withMessage('Message is required'),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -48,17 +50,22 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, email, message } = req.body;
+    const emails = req.body;
 
     try {
-      // Enqueue the email sending task
-      await emailQueue.add('sendEmail', { name, email, message });
+      // Enqueue the email sending task for each email
+      const tasks = emails.map((email) => {
+        const { name, email, message } = email;
+        return emailQueue.add('sendEmail', { name, email, message });
+      });
 
-      console.log('Email task enqueued');
+      await Promise.all(tasks);
+
+      console.log('Email tasks enqueued');
       res.sendStatus(200);
     } catch (error) {
       console.log(error);
-      res.status(500).send('Failed to enqueue email task.');
+      res.status(500).send('Failed to enqueue email tasks.');
     }
   }
 );
