@@ -4,6 +4,7 @@ const cors = require('cors');
 const { body, validationResult } = require('express-validator');
 const rateLimit = require('express-rate-limit');
 const twilio = require('twilio');
+const mysql = require('mysql');
 
 
 require('dotenv').config();
@@ -39,6 +40,13 @@ const limiter = rateLimit({
   // Create a Twilio client
 const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
+// Create a MySQL connection pool
+const pool = mysql.createPool({
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+  });
+ 
 // Recursive function to attempt to send 5 times 
 const sendEmail = async (mailOptions, retries = 0) => {
     try {
@@ -59,8 +67,9 @@ const sendEmail = async (mailOptions, retries = 0) => {
         // OR
         // store email in the database
         // Send SMS notification
-        const smsMessage = `Hey Adam, someone just failed sending an email to you after 5 attempts. Check your database.`;
-        sendSMS(smsMessage);
+        // const smsMessage = `Hey Adam, someone just failed sending an email to you after 5 attempts. Check your database.`;
+        // sendSMS(smsMessage);
+        saveEmailToDatabase(mailOptions);
       }
     }
   };
@@ -77,6 +86,23 @@ const sendEmail = async (mailOptions, retries = 0) => {
       console.log('sendSMS Error', error.message);
       throw error;
     }
+  };
+
+  const saveEmailToDatabase = (mailOptions) => {
+    const { from, text } = mailOptions;
+  
+    const email = {
+      sender_email: from,
+      message: text,
+    };
+  
+    pool.query('INSERT INTO emails SET ?', email, (error) => {
+      if (error) {
+        console.log('Failed to save email to database:', error);
+      } else {
+        console.log('Email saved to database');
+      }
+    });
   };
 
   // Define a route to handle the email sending
