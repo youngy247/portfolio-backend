@@ -50,7 +50,7 @@ const pool = mysql.createPool({
   });
  
 // Recursive function to attempt to send 5 times 
-const sendEmail = async (mailOptions, retries = 0) => {
+const sendEmail = async (mailOptions, email, retries = 0) => {
     try {
       await transporter.sendMail(mailOptions);
       console.log('Email sent');
@@ -58,12 +58,12 @@ const sendEmail = async (mailOptions, retries = 0) => {
       console.log('*** ERROR ***', error?.message);
       if (retries < 5) {
         // make recursive call to sendEmail
-        return sendEmail(mailOptions, retries + 1);
+        return sendEmail(mailOptions, email, retries + 1);
       } else {
-        //Send SMS notification
-        const smsMessage = `Hey Adam, someone just failed sending an email to you after 5 attempts. Check your database.`;
+        // Send SMS notification
+        const smsMessage = `Hey Adam, someone just failed sending an email to you after 5 attempts. Email: ${email}. Check your database to see more information.`;
         sendSMS(smsMessage);
-        // store email in the database
+        // Store email in the database
         saveEmailToDatabase(mailOptions);
       }
     }
@@ -125,7 +125,7 @@ const sendEmail = async (mailOptions, retries = 0) => {
     
       try {
         // Send the email asynchronously
-        await sendEmail(mailOptions);
+        await sendEmail(mailOptions, email);
       } catch (error) {
         console.log(error);
         res.status(500).send('Failed to send email.');
