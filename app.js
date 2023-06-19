@@ -36,36 +36,58 @@ const limiter = rateLimit({
 
 // Define a route to handle the email sending
 
-app.post('/', [
-    body('name').trim().notEmpty().withMessage('Name is required'),
-    body('email').trim().isEmail().withMessage('Invalid email address'),
-    body('message').trim().notEmpty().withMessage('Message is required'),
-  ], async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-  
-    const { name, email, message } = req.body;
-  
-    // Compose the email message
-    const mailOptions = {
-      from: email,
-      to: process.env.EMAIL_RECIPIENT,
-      subject: 'New Portfolio Form Submission',
-      text: `Name: ${name}\nEmail: ${email}\n\nMessage: ${message}`,
-    };
-    res.sendStatus(200);
+const sendEmail = async (mailOptions, retries = 0) => {
     try {
-      // Send the email asynchronously
       await transporter.sendMail(mailOptions);
       console.log('Email sent');
-      
     } catch (error) {
-      console.log(error);
-      res.status(500).send('Failed to send email.');
+      console.log('*** ERROR ***', error?.message);
+      if (retries < 5) {
+        // make recursive call to sendEmail
+        return sendEmail(mailOptions, retries + 1);
+      } else {
+        // *** TODO ***
+        // we know that send email failed many times
+        // this is the worst case scenario
+        // here I would add some code to notify the admin
+        // or store the email in the database
+        // send SMS to your phone with email sender and email text
+        // OR
+        // store email in the database
+      }
     }
-  });
+  };
+  
+  app.post('/', [
+      body('name').trim().notEmpty().withMessage('Name is required'),
+      body('email').trim().isEmail().withMessage('Invalid email address'),
+      body('message').trim().notEmpty().withMessage('Message is required'),
+    ], async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+    
+      const { name, email, message } = req.body;
+    
+      // Compose the email message
+      const mailOptions = {
+        from: email,
+        to: process.env.EMAIL_RECIPIENT,
+        subject: 'New Portfolio Form Submission',
+        text: `Name: ${name}\nEmail: ${email}\n\nMessage: ${message}`,
+      };
+  
+      res.sendStatus(200);
+    
+      try {
+        // Send the email asynchronously
+        await sendEmail(mailOptions);
+      } catch (error) {
+        console.log(error);
+        res.status(500).send('Failed to send email.');
+      }
+    });
   
 
 // Start the server
