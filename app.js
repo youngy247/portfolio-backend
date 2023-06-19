@@ -57,6 +57,9 @@ const sendEmail = async (mailOptions, email, retries = 0) => {
     } catch (error) {
       console.log('*** ERROR ***', error?.message);
       if (retries < 5) {
+        const fiveSecondsToTwentySecondsInMilliSeconds = getRandomInt(5000, 20000);
+      // Wait for the delay
+        await wait(fiveSecondsToTwentySecondsInMilliSeconds);
         // make recursive call to sendEmail
         return sendEmail(mailOptions, email, retries + 1);
       } else {
