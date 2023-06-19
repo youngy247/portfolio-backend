@@ -3,6 +3,7 @@ const nodemailer = require('nodemailer');
 const cors = require('cors');
 const { body, validationResult } = require('express-validator');
 const rateLimit = require('express-rate-limit');
+const twilio = require('twilio');
 
 
 require('dotenv').config();
@@ -34,8 +35,11 @@ const limiter = rateLimit({
     },
   });
 
-// Define a route to handle the email sending
 
+  // Create a Twilio client
+const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
+// Recursive function to attempt to send 5 times 
 const sendEmail = async (mailOptions, retries = 0) => {
     try {
       await transporter.sendMail(mailOptions);
@@ -54,10 +58,28 @@ const sendEmail = async (mailOptions, retries = 0) => {
         // send SMS to your phone with email sender and email text
         // OR
         // store email in the database
+        // Send SMS notification
+        const smsMessage = `Hey Adam, someone just failed sending an email to you after 5 attempts. Check your database.`;
+        sendSMS(smsMessage);
       }
     }
   };
-  
+
+  const sendSMS = async (message) => {
+    try {
+      await twilioClient.messages.create({
+        body: message,
+        to: process.env.OWN_MOBILE_NUMBER,
+        from: process.env.TWILIO_MOBILE_NUMBER,
+      });
+      console.log('SMS sent');
+    } catch (error) {
+      console.log('sendSMS Error', error.message);
+      throw error;
+    }
+  };
+
+  // Define a route to handle the email sending
   app.post('/', [
       body('name').trim().notEmpty().withMessage('Name is required'),
       body('email').trim().isEmail().withMessage('Invalid email address'),
