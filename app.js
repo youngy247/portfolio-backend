@@ -60,17 +60,10 @@ const sendEmail = async (mailOptions, retries = 0) => {
         // make recursive call to sendEmail
         return sendEmail(mailOptions, retries + 1);
       } else {
-        // *** TODO ***
-        // we know that send email failed many times
-        // this is the worst case scenario
-        // here I would add some code to notify the admin
-        // or store the email in the database
-        // send SMS to your phone with email sender and email text
-        // OR
+        //Send SMS notification
+        const smsMessage = `Hey Adam, someone just failed sending an email to you after 5 attempts. Check your database.`;
+        sendSMS(smsMessage);
         // store email in the database
-        // Send SMS notification
-        // const smsMessage = `Hey Adam, someone just failed sending an email to you after 5 attempts. Check your database.`;
-        // sendSMS(smsMessage);
         saveEmailToDatabase(mailOptions);
       }
     }
