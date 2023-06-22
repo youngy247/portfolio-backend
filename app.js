@@ -5,8 +5,14 @@ const { body, validationResult } = require('express-validator');
 const rateLimit = require('express-rate-limit');
 const twilio = require('twilio');
 const mysql = require('mysql');
+const cronjob = require('node-cron');
+const ping = require('ping');
 
-
+// Schedule the ping to run every 10 minutes to stop render server from sleep mode
+cronjob.schedule('*/10 * * * *', () => {
+    ping.sys.probe("https://portfolio-backend-3jb1.onrender.com");
+  });
+  
 require('dotenv').config();
 
 
