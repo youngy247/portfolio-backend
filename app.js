@@ -7,7 +7,7 @@ const twilio = require('twilio');
 const mysql = require('mysql');
 const cronjob = require('node-cron');
 const ping = require('ping');
-import fetch from 'node-fetch';
+const fetch = require('node-fetch');
 
 
 require('dotenv').config();
