@@ -10,9 +10,16 @@ const ping = require('ping');
 
 // Schedule the ping to run every 10 minutes to stop render server from sleep mode
 cronjob.schedule('*/10 * * * *', () => {
-    ping.sys.probe("https://portfolio-backend-3jb1.onrender.com");
+    const serverUrl = "https://portfolio-backend-3jb1.onrender.com";
+    ping.sys.probe(serverUrl, (isAlive) => {
+      if (isAlive) {
+        console.log(`Server ${serverUrl} is alive.`);
+      } else {
+        console.log(`Server ${serverUrl} is down.`);
+      }
+    });
   });
-  
+
 require('dotenv').config();
 
 
