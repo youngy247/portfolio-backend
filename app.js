@@ -6,7 +6,6 @@ const rateLimit = require('express-rate-limit');
 const twilio = require('twilio');
 const mysql = require('mysql');
 const cronjob = require('node-cron');
-const ping = require('ping');
 const fetch = require('node-fetch');
 
 
