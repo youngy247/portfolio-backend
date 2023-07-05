@@ -16,6 +16,8 @@ const app = express();
 app.use(cors()); // Enable CORS for cross-domain requests
 app.use(express.json());
 
+app.use(limiter);
+
   
  // Create a Nodemailer transporter
  const transporter = nodemailer.createTransport({
