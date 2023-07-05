@@ -19,7 +19,7 @@ app.use(express.json());
 // Create a rate limiter
 const limiter = rateLimit({
   windowMs: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
-  max: 5, // Maximum number of requests per windowMs
+  max: 10, // Maximum number of requests per windowMs
   keyGenerator: (req) => req.ip,
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
