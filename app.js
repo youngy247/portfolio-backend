@@ -16,8 +16,53 @@ const app = express();
 app.use(cors()); // Enable CORS for cross-domain requests
 app.use(express.json());
 
-app.use(limiter);
+// Create a rate limiter
+const limiter = rateLimit({
+  windowMs: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
+  max: 5, // Maximum number of requests per windowMs
+  keyGenerator: (req) => req.ip,
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  message: 'Too many requests from this IP, please try again after 24 hours.',
+});
 
+// Apply the rate limiter to all routes except the cron job route
+app.use((req, res, next) => {
+  if (req.path === '/cron-job-route') {
+    next();
+  } else {
+    limiter(req, res, next);
+  }
+});
+
+// Define a route for the cron job
+app.get('/cron-job-route', (req, res) => {
+
+  const serverUrl = 'https://portfolio-backend-3jb1.onrender.com';
+
+  console.log(`Server ${serverUrl} is alive.`);
+
+  res.sendStatus(200);
+
+});
+
+// Schedule the cron job to run every 10 minutes
+cronjob.schedule('*/10 * * * *', () => {
+  // Send a GET request to the cron job route to execute the logic
+  const cronJobUrl = 'https://portfolio-backend-3jb1.onrender.com/cron-job-route';
+
+  fetch(cronJobUrl)
+    .then((response) => {
+      if (response.ok) {
+        console.log('Cron job executed successfully.');
+      } else {
+        throw new Error('Request failed with status code ' + response.status);
+      }
+    })
+    .catch((error) => {
+      console.log('Error executing cron job:', error.message);
+    });
+});
   
  // Create a Nodemailer transporter
  const transporter = nodemailer.createTransport({
@@ -127,55 +172,6 @@ const sendEmail = async (mailOptions, email, retries = 0) => {
         res.status(500).send('Failed to send email.');
       }
     });
-  
-
-// Define a route for the cron job
-app.get('/cron-job-route', (req, res) => {
-
-    const serverUrl = 'https://portfolio-backend-3jb1.onrender.com';
-
-    console.log(`Server ${serverUrl} is alive.`);
-  
-    res.sendStatus(200);
-
-  });
-
-// Create a rate limiter
-const limiter = rateLimit({
-  windowMs: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
-  max: 5, // Maximum number of requests per windowMs
-  keyGenerator: (req) => req.ip,
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  message: 'Too many requests from this IP, please try again after 24 hours.',
-});
-
-// Apply the rate limiter to all routes except the cron job route
-app.use((req, res, next) => {
-  if (req.path === '/cron-job-route') {
-    next();
-  } else {
-    limiter(req, res, next);
-  }
-});
-
-// Schedule the cron job to run every 10 minutes
-cronjob.schedule('*/10 * * * *', () => {
-    // Send a GET request to the cron job route to execute the logic
-    const cronJobUrl = 'https://portfolio-backend-3jb1.onrender.com/cron-job-route';
-  
-    fetch(cronJobUrl)
-      .then((response) => {
-        if (response.ok) {
-          console.log('Cron job executed successfully.');
-        } else {
-          throw new Error('Request failed with status code ' + response.status);
-        }
-      })
-      .catch((error) => {
-        console.log('Error executing cron job:', error.message);
-      });
-  });
   
 
 
