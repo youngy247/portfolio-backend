@@ -22,7 +22,7 @@ app.get('/ip', (request, response) => response.send(request.ip))
 // Create a rate limiter
 const limiter = rateLimit({
   windowMs: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
-  max: 10, // Maximum number of requests per windowMs
+  max: 6, // Maximum number of requests per windowMs
   keyGenerator: (req) => req.ip,
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
