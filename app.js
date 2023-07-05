@@ -130,16 +130,13 @@ const sendEmail = async (mailOptions, email, retries = 0) => {
 
 // Define a route for the cron job
 app.get('/cron-job-route', (req, res) => {
-    // Handle the cron job logic here
+
     const serverUrl = 'https://portfolio-backend-3jb1.onrender.com';
-    ping.sys.probe(serverUrl, (isAlive) => {
-      if (isAlive) {
-        console.log(`Server ${serverUrl} is alive.`);
-      } else {
-        console.log(`Server ${serverUrl} is down.`);
-      }
-    });
+
+    console.log(`Server ${serverUrl} is alive.`);
+  
     res.sendStatus(200);
+
   });
 
 // Create a rate limiter
