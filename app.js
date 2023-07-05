@@ -17,7 +17,6 @@ app.use(cors()); // Enable CORS for cross-domain requests
 app.use(express.json());
 
 app.set('trust proxy', 4)
-app.get('/ip', (request, response) => response.send(request.ip))
 
 // Create a rate limiter
 const limiter = rateLimit({
