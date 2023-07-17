@@ -48,8 +48,8 @@ app.get('/cron-job-route', (req, res) => {
 
 });
 
-// Schedule the cron job to run every 10 minutes
-cronjob.schedule('*/10 * * * *', () => {
+// Schedule the cron job to run every 12 minutes
+cronjob.schedule('*/12 * * * *', () => {
   // Send a GET request to the cron job route to execute the logic
   const cronJobUrl = 'https://portfolio-backend-3jb1.onrender.com/cron-job-route';
 
