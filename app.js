@@ -7,6 +7,7 @@ const twilio = require('twilio');
 const mysql = require('mysql');
 const cronjob = require('node-cron');
 const fetch = require('node-fetch');
+const captchaRoute = require('./captcha.js');
 
 
 require('dotenv').config();
@@ -15,6 +16,7 @@ require('dotenv').config();
 const app = express();
 app.use(cors()); // Enable CORS for cross-domain requests
 app.use(express.json());
+app.use('/captcha', captchaRoute);
 
 app.set('trust proxy', 4)
 
@@ -30,7 +32,7 @@ const limiter = rateLimit({
 
 // Apply the rate limiter to all routes except the cron job route
 app.use((req, res, next) => {
-  if (req.path === '/cron-job-route') {
+  if (req.path === '/cron-job-route' || req.path === '/captcha/verify') {
     next();
   } else {
     limiter(req, res, next);
