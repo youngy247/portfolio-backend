@@ -3,7 +3,12 @@ const router = express.Router();
 const vision = require('@google-cloud/vision');
 
 // Creates a client
-const client = new vision.ImageAnnotatorClient();
+const client = new vision.ImageAnnotatorClient({
+  credentials: {
+    client_email: process.env.CLIENT_EMAIL,
+    private_key: process.env.PRIVATE_KEY.replace(/\\n/g, '\n'),
+  },
+});
 
 router.post("/", async (req, res) => {
   try {
