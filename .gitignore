@@ -18,6 +18,7 @@ yarn-error.log
 .env.test
 .env.development
 .env.production
+googleAuth.json
 
 # Editor-specific files
 .vscode
